@@ -1,4 +1,3 @@
-import time
 import discord
 from discord.ext import tasks
 import os
@@ -13,6 +12,9 @@ VOICE2 = int(os.getenv('VOICE2_ID'))
 intents = discord.Intents.default()
 intents.guilds = True
 bot = discord.Client(intents=intents)
+
+serverOnlineStatus = "Status: Fetching.."
+serverPlayerCount = 0
 
 
 @bot.event
@@ -51,16 +53,17 @@ async def update_status(status, plrcount):
             print(f"HTTP Exception: {e}")
 
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=2)
 async def check_server_status():
-    serverOnlineStatus = "Status: Offline"
-    serverPlayerCount = 0
     try:
+        print("Trying..")
         server = JavaServer.lookup("hellenicraft.mine.nu:25565")
         status = server.status()
+        print("Success!")
         serverOnlineStatus = "Status: Online"
         serverPlayerCount = f"Players: {status.players.online}/16"
     except Exception as e:
+        print("Caught exception!")
         serverOnlineStatus = "Status: Offline"
         serverPlayerCount = "0/16"
     print(f"Server Status: {serverOnlineStatus}")
